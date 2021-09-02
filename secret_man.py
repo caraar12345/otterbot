@@ -3,9 +3,8 @@ import base64
 from botocore.exceptions import ClientError
 
 
-def get_secret():
+def get_secret(secret_name):
 
-    secret_name = "otterbot/slack/verification"
     region_name = "eu-west-2"
 
     # Create a Secrets Manager client

@@ -1,1 +1,4 @@
-venv/*
+slack*
+*.zip
+test.py
+.vscode/

@@ -1,25 +1,31 @@
 import boto3
 import json
 import logging
-import os
 from base64 import b64decode
+import os
 
 from urllib.parse import parse_qs
 from botocore.exceptions import ClientError
 
 from secret_man import get_secret
+from python_whois.whois import whois
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-expected_token = json.loads(get_secret())['otterbot_slack_verification']
+EXPECTED_TOKEN = json.loads(get_secret(os.environ.get('slack_verify_secret_name')))[
+    os.environ.get('slack_verify_secret_key')]
+BOT_TOKEN = json.loads(get_secret(os.environ.get('slack_bot_secret_name')))[
+    os.environ.get('slack_bot_secret_key')]
+SLACK_SIGNING_SECRET = json.loads(get_secret(os.environ.get('slack_signing_secret_name')))[
+    os.environ.get('slack_signing_secret_key')]
 
 
 def respond(err, res=None):
     print(json.dumps(res).encode('utf8'))
     return {
         'statusCode': '400' if err else '200',
-        'body': err.message if err else json.dumps(res).encode('utf8'),
+        'body': err if err else json.dumps(res).encode('utf8'),
         'headers': {
             'Content-Type': 'application/json',
         },
@@ -30,21 +36,38 @@ def lambda_handler(event, context):
     decoded_body = b64decode(event['body'])
     params = parse_qs(decoded_body)
     token = params[b'token'][0].decode('utf8')
-    if token != expected_token:
-        logger.error("Request token (%s) does not match expected", token)
-        return(Exception())
-    user = params[b'user_name'][0].decode('utf8')
-    command = params[b'command'][0].decode('utf8')
-    channel = params[b'channel_name'][0].decode('utf8')
-    print(params)
+    if token != EXPECTED_TOKEN:
+        logger.error("Request token does not match expected")
+        return respond(err="Request token does not match expected")
+
     if b'text' in params:
-        command_text = params[b'text'][0].decode('utf8')
+        host = params[b'text'][0].decode('utf8')
     else:
-        command_text = ''
+        return respond(err="No whois host provided")
+
+    whois_result = whois.whois(host, raw=True)
+
+    msg_template = [
+        {
+            "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f":mag: Whois result for {host}",
+                        "emoji": True
+                    }
+        },
+        {
+            "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"```{whois_result}```"
+                    }
+        }
+    ]
 
     payload = {
         "response_type": "in_channel",
-        "text": f"{user} invoked {command} in {channel} with the following text: {command_text}"
+        "blocks": json.dumps(msg_template)
     }
 
     return respond(None, payload)
