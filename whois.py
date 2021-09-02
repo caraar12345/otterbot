@@ -2,22 +2,17 @@ import boto3
 import json
 import logging
 import os
-
 from base64 import b64decode
+
 from urllib.parse import parse_qs
+from botocore.exceptions import ClientError
 
-
-ENCRYPTED_EXPECTED_TOKEN = os.environ['kmsEncryptedToken']
-
-kms = boto3.client('kms')
-expected_token = boto3.client('kms').decrypt(
-    CiphertextBlob=b64decode(ENCRYPTED_EXPECTED_TOKEN),
-    EncryptionContext={
-        'LambdaFunctionName': os.environ['AWS_LAMBDA_FUNCTION_NAME']}
-)['Plaintext'].decode('utf-8')
+from secret_man import get_secret
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+expected_token = json.loads(get_secret())['otterbot_slack_verification']
 
 
 def respond(err, res=None):
@@ -37,11 +32,11 @@ def lambda_handler(event, context):
     token = params[b'token'][0].decode('utf8')
     if token != expected_token:
         logger.error("Request token (%s) does not match expected", token)
-        return respond(Exception('Invalid request token'))
-
+        return(Exception())
     user = params[b'user_name'][0].decode('utf8')
     command = params[b'command'][0].decode('utf8')
     channel = params[b'channel_name'][0].decode('utf8')
+    print(params)
     if b'text' in params:
         command_text = params[b'text'][0].decode('utf8')
     else:
