@@ -50,7 +50,8 @@ def lambda_handler(event, context):
     whois_result = whois.whois(host, raw=True)
     slack_app.client.conversations_join(channel=channel_id)
     file_info = slack_app.client.files_upload(title=host, content=whois_result)['file']
-    file_link = file_info['url_private']
+    file_link = file_info['permalink']
+    slack_app.client.files_remote_share(channels=channel_id, file=file_info['id'])
     print(file_info)
 
     msg_template = [
