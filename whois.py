@@ -63,9 +63,8 @@ def lambda_handler(event, context):
 
     payload = {
         "response_type": "in_channel",
-        "blocks": json.dumps(msg_template),
-        "unfurl_links": True
+        "blocks": json.dumps(msg_template)
     }
 
-    respond(None, payload=payload)
+    print(respond(None, payload=payload))
     slack_app.client.files_remote_share(channels=channel_id, file=file_info['id'])
