@@ -29,10 +29,10 @@ slack_app = App(
 def respond(err, title_msg=None, host=None, whois_result=None, channel_id=None):
     if not err:
         slack_app.client.conversations_join(channel=channel_id)
-        file_uploaded = {"text": slack_app.client.files_upload(title=host, content=whois_result)}
+        print(slack_app.client.files_upload(title=host, content=whois_result))
     return ({
                 'statusCode': '400' if err else '200',
-                'body': err if err else json.dumps(file_uploaded).encode('utf8'),
+                'body': err if err else json.dumps(title_msg).encode('utf8'),
                 'headers': {
                     'Content-Type': 'application/json',
                 },
