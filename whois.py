@@ -9,6 +9,7 @@ from botocore.exceptions import ClientError
 
 from secret_man import get_secret
 from python_whois.whois import whois
+from slack_bolt import App
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,6 +21,10 @@ BOT_TOKEN = json.loads(get_secret(os.environ.get('slack_bot_secret_name')))[
 SLACK_SIGNING_SECRET = json.loads(get_secret(os.environ.get('slack_signing_secret_name')))[
     os.environ.get('slack_signing_secret_key')]
 
+slack_app = App(
+    token=BOT_TOKEN,
+    signing_secret=SLACK_SIGNING_SECRET
+)
 
 def respond(err, res=None):
     print(json.dumps(res).encode('utf8'))
@@ -45,9 +50,11 @@ def lambda_handler(event, context):
     else:
         return respond(err="No whois host provided")
 
+    channel_id = params[b'channel_id'][0].decode('utf8')
+
     whois_result = whois.whois(host, raw=True)
 
-    msg_template = [
+    title_template = [
         {
             "type": "header",
                     "text": {
@@ -55,19 +62,12 @@ def lambda_handler(event, context):
                         "text": f":mag: Whois result for {host}",
                         "emoji": True
                     }
-        },
-        {
-            "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": f"```{whois_result}```"
-                    }
         }
     ]
 
     payload = {
         "response_type": "in_channel",
-        "blocks": json.dumps(msg_template)
+        "blocks": json.dumps(title_template)
     }
 
     return respond(None, payload)
