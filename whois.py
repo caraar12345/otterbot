@@ -1,15 +1,11 @@
-import boto3
 import json
 import logging
-from base64 import b64decode
 import os
-
+from base64 import b64decode
 from urllib.parse import parse_qs
-from botocore.exceptions import ClientError
-
-from secret_man import get_secret
-from python_whois.whois import whois
 from slack_bolt import App
+from python_whois.whois import whois
+from secret_man import get_secret
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -52,7 +48,7 @@ def lambda_handler(event, context):
     channel_id = params[b'channel_id'][0].decode('utf8')
     whois_result = whois.whois(host, raw=True)
     slack_app.client.conversations_join(channel=channel_id)
-    file_link = slack_app.client.files_upload(title=host, content=whois_result))['file']['permalink']
+    file_link = slack_app.client.files_upload(title=host, content=whois_result)['file']['permalink']
 
     msg_template = [
         {
