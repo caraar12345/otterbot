@@ -2,6 +2,7 @@ name: deploy to AWS lambda
 on: [push]
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     name: deploy function
     runs-on: ubuntu-latest
     steps:
