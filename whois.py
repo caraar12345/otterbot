@@ -62,7 +62,8 @@ def lambda_handler(event, context):
 
     payload = {
         "response_type": "in_channel",
-        "blocks": json.dumps(msg_template)
+        "blocks": json.dumps(msg_template),
+        "unfurl_links": True
     }
 
     return respond(None, payload=payload)
