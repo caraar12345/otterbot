@@ -55,7 +55,7 @@ def lambda_handler(event, context):
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": f"*Whois result for {host}*<{file_link}|​>"
+				"text": f"*Whois result for {host}* <{file_link}|this should be the file link>"
 			}
 		}
     ]
