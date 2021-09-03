@@ -4,6 +4,7 @@ import os
 from base64 import b64decode
 from urllib.parse import parse_qs
 from slack_bolt import App
+from slack_sdk.oauth.state_store import file
 from python_whois.whois import whois
 from secret_man import get_secret
 
@@ -48,7 +49,9 @@ def lambda_handler(event, context):
     channel_id = params[b'channel_id'][0].decode('utf8')
     whois_result = whois.whois(host, raw=True)
     slack_app.client.conversations_join(channel=channel_id)
-    file_link = slack_app.client.files_upload(title=host, content=whois_result)['file']['permalink']
+    file_info = slack_app.client.files_upload(title=host, content=whois_result)['file']
+    file_link = file_info['permalink']
+    print(file_info)
 
     msg_template = [
         {
