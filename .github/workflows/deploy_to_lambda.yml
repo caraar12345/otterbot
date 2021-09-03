@@ -1,0 +1,20 @@
+name: deploy to AWS lambda
+on: [push]
+jobs:
+  deploy:
+    name: deploy function
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v1
+      - name: create zip
+        run: make
+      - name: lambda deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: otterbot
+          zip_file: whois_otterbot_${{ github.sha }}.zip
+
