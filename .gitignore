@@ -3,3 +3,4 @@ slack*
 test.py
 .vscode/
 venv/
+.DS_Store
