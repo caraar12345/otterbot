@@ -2,3 +2,4 @@ slack*
 *.zip
 test.py
 .vscode/
+venv/
