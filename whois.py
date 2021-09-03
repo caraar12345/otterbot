@@ -27,7 +27,7 @@ slack_app = App(
 )
 
 def respond(err, title_msg=None, host=None, whois_result=None, channel_id=None):
-    return (None if err else slack_app.client.files_upload(filename=host, content=whois_result, channels=channel_id), {
+    return (None if err else slack_app.client.files_upload(title=host, content=whois_result, channels=channel_id), {
         'statusCode': '400' if err else '200',
         'body': err if err else json.dumps(title_msg).encode('utf8'),
         'headers': {
