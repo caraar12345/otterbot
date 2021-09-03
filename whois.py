@@ -64,7 +64,8 @@ def lambda_handler(event, context):
     ]
 
     payload = {
+        "response_type": "in_channel",
         "blocks": json.dumps(title_template)
     }
 
-    return respond(None, title_msg=payload, host=host, whois_result=whois_result, channel_id=channel_id)
+    return respond(None, title_msg=payload, host=host, whois_result=whois_result, channel_id=channel_id)[0]
