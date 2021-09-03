@@ -1,6 +1,5 @@
 name: deploy to AWS lambda
 on: [push]
-environment: prod
 jobs:
   deploy:
     name: deploy function
