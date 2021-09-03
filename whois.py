@@ -26,11 +26,12 @@ slack_app = App(
     signing_secret=SLACK_SIGNING_SECRET
 )
 
-def respond(err, res=None):
-    print(json.dumps(res).encode('utf8'))
+def respond(err, title_msg=None, whois_result=None, channel_id=None):
+    if not err:
+        slack_app.client.files_upload(content=whois_result, channels=channel_id)
     return {
         'statusCode': '400' if err else '200',
-        'body': err if err else json.dumps(res).encode('utf8'),
+        'body': err if err else json.dumps(title_msg).encode('utf8'),
         'headers': {
             'Content-Type': 'application/json',
         },
@@ -70,4 +71,4 @@ def lambda_handler(event, context):
         "blocks": json.dumps(title_template)
     }
 
-    return respond(None, payload)
+    return respond(None, title_msg=payload, whois_result=whois_result, channel_id=channel_id)
