@@ -26,17 +26,14 @@ slack_app = App(
     signing_secret=SLACK_SIGNING_SECRET
 )
 
-def respond(err, title_msg=None, host=None, whois_result=None, channel_id=None):
-    if not err:
-        slack_app.client.conversations_join(channel=channel_id)
-        print(slack_app.client.files_upload(title=host, content=whois_result))
-    return ({
+def respond(err, payload=None):
+    return {
                 'statusCode': '400' if err else '200',
-                'body': err if err else json.dumps(title_msg).encode('utf8'),
+                'body': err if err else json.dumps(payload).encode('utf8'),
                 'headers': {
                     'Content-Type': 'application/json',
                 },
-            })
+            }
 
 
 def lambda_handler(event, context): 
@@ -53,22 +50,23 @@ def lambda_handler(event, context):
         return respond(err="No whois host provided")
 
     channel_id = params[b'channel_id'][0].decode('utf8')
-
     whois_result = whois.whois(host, raw=True)
+    slack_app.client.conversations_join(channel=channel_id)
+    file_link = slack_app.client.files_upload(title=host, content=whois_result))['file']['permalink']
 
-    title_template = [
+    msg_template = [
         {
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": f"_The whois result for {host} can be found above._"
+				"text": f"*Whois result for {host}*<{file_link}|​>"
 			}
 		}
     ]
 
     payload = {
         "response_type": "in_channel",
-        "blocks": json.dumps(title_template)
+        "blocks": json.dumps(msg_template)
     }
 
-    return respond(None, title_msg=payload, host=host, whois_result=whois_result, channel_id=channel_id)[0]
+    return respond(None, payload=payload)
