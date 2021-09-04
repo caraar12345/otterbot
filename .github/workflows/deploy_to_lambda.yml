@@ -1,8 +1,10 @@
 name: deploy to AWS lambda
 on: [push]
 jobs:
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  deploy_whois:
+    if: 
+      - github.ref == 'refs/heads/main'
+      - startsWith(github.event.commits[0].message, '[whois]'
     name: deploy function
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +17,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: set up and create zip
-        run: make
+        run: make whois
       - name: lambda deploy
         uses: appleboy/lambda-action@master
         with:
@@ -27,3 +29,30 @@ jobs:
           timeout: 3
           zip_file: whois_otterbot_${{ github.sha }}.zip
 
+  deploy_router:
+    if: 
+      - github.ref == 'refs/heads/main'
+      - startsWith(github.event.commits[0].message, '[router]'
+    name: deploy function
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v1
+        with:
+          submodules: 'true'
+      - name: create virtualenv
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: set up and create zip
+        run: make router
+      - name: lambda deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: otterbot_router
+          memory_size: 128
+          timeout: 3
+          zip_file: otterbot_router_${{ github.sha }}.zip
