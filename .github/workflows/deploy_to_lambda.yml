@@ -2,9 +2,7 @@ name: deploy to AWS lambda
 on: [push]
 jobs:
   deploy_whois:
-    if: 
-      - github.ref == 'refs/heads/main'
-      - startsWith(github.event.commits[0].message, '[whois]'
+    if: ${{ github.ref == 'refs/heads/main' }} && ${{ startsWith(github.event.commits[0].message, '[whois]') }}
     name: deploy function
     runs-on: ubuntu-latest
     steps:
@@ -30,9 +28,7 @@ jobs:
           zip_file: whois_otterbot_${{ github.sha }}.zip
 
   deploy_router:
-    if: 
-      - github.ref == 'refs/heads/main'
-      - startsWith(github.event.commits[0].message, '[router]'
+    if: ${{ github.ref }} == 'refs/heads/main' && ${{ startsWith(github.event.commits[0].message, '[router]') }}
     name: deploy function
     runs-on: ubuntu-latest
     steps:
