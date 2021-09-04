@@ -3,7 +3,7 @@ on: [push]
 jobs:
   deploy_whois:
     if: ${{ github.ref == 'refs/heads/main' }} && ${{ startsWith(github.event.commits[0].message, '[whois]') }}
-    name: deploy function
+    name: deploy whois
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -29,13 +29,11 @@ jobs:
 
   deploy_router:
     if: ${{ github.ref }} == 'refs/heads/main' && ${{ startsWith(github.event.commits[0].message, '[router]') }}
-    name: deploy function
+    name: deploy router
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
         uses: actions/checkout@v1
-        with:
-          submodules: 'true'
       - name: create virtualenv
         uses: actions/setup-python@v2
         with:
